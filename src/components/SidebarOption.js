@@ -2,17 +2,21 @@ import React from "react";
 import styled from "styled-components";
 import { db } from "../firebase";
 import { useDispatch } from "react-redux";
-import { enterRoom } from "../features/appSlice";
+import { enterRoom, popupSwitch } from "../features/appSlice";
+import { useState } from "react";
 
 function SidebarOption({ Icon, title, addChannelOption, id }) {
   const dispatch = useDispatch();
+
   const addChannel = () => {
-    const channelName = prompt("Please enter a channel name: ");
-    if (channelName) {
-      db.collection("rooms").add({
-        name: channelName,
-      });
-    }
+    //const channelName = prompt("Please enter a channel name: ");
+    dispatch(popupSwitch({ status: true }));
+    dispatch(enterRoom({ roomId: null }));
+    //if (channelName) {
+    //db.collection("rooms").add({
+    //   name: channelName,
+    //  });
+    // }
   };
 
   const selectChannel = () => {
@@ -22,6 +26,7 @@ function SidebarOption({ Icon, title, addChannelOption, id }) {
           roomId: id,
         })
       );
+      dispatch(popupSwitch({ status: false }));
     }
   };
 

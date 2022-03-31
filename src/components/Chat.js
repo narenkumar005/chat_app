@@ -5,13 +5,16 @@ import InfoOutlinedIcon from "@material-ui/icons/InfoOutlined";
 import { useSelector } from "react-redux";
 import { useDocument, useCollection } from "react-firebase-hooks/firestore";
 import ChatInput from "./ChatInput";
-import { selectRoomId } from "../features/appSlice";
+import { popupStatus, selectRoomId } from "../features/appSlice";
 import { db } from "../firebase";
 import Message from "./Message";
+import CreateChannel from "./CreateChannel";
 
 const Chat = () => {
   const chatRef = useRef(null);
   const roomId = useSelector(selectRoomId);
+  const popUp = useSelector(popupStatus);
+
   const [roomDetails] = useDocument(
     roomId && db.collection("rooms").doc(roomId)
   );
@@ -30,12 +33,25 @@ const Chat = () => {
 
   return (
     <ChatContainer>
+      {!roomMessages && !popUp && (
+        <LoadingContainer>
+          <div>
+            <h1>Select a channel to chat</h1>
+            <img
+              src="https://i.pinimg.com/originals/27/9d/a0/279da0eddd5cf914d29ec923e837e3fe.gif"
+              alt="loading..."
+            />
+          </div>
+        </LoadingContainer>
+      )}
+      {popUp && <CreateChannel />}
+
       {roomDetails && roomMessages && (
         <>
           <Header>
             <HeaderLeft>
               <h4>
-                <strong>#{roomDetails?.data().name}</strong>
+                <strong>#{roomDetails?.data().channelName}</strong>
               </h4>
               <StarBorderIcon />
             </HeaderLeft>
@@ -64,7 +80,7 @@ const Chat = () => {
 
           <ChatInput
             chatRef={chatRef}
-            channelName={roomDetails?.data().name}
+            channelName={roomDetails?.data().channelName}
             channelId={roomId}
           />
         </>
@@ -120,4 +136,18 @@ const ChatContainer = styled.div`
   flex-grow: 1;
   overflow-y: scroll;
   margin-top: 60px;
+  position: relative;
+`;
+
+const LoadingContainer = styled.div`
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+
+  align-items: center;
+  justify-content: center;
+
+  > h1 {
+    margin-bottom: 20px;
+  }
 `;

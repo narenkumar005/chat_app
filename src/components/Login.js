@@ -1,13 +1,24 @@
 import { Button } from "@material-ui/core";
-import React from "react";
+import React, { useEffect } from "react";
 import styled from "styled-components";
-import { auth, provider } from "../firebase";
+import { db, auth, provider } from "../firebase";
+import { useAuthState } from "react-firebase-hooks/auth";
 
 function Login() {
-  const signIn = (e) => {
+  const signIn = async (e) => {
     e.preventDefault();
-    auth.signInWithPopup(provider).catch((error) => alert(error.message));
+    const res = await auth
+      .signInWithPopup(provider)
+      .catch((error) => alert(error.message));
+    if (res) {
+      await db.collection("users").doc(res.user.uid).set({
+        name: res.user.displayName,
+        email: res.user.email,
+        pic: res.user.photoURL,
+      });
+    }
   };
+
   return (
     <LoginContainer>
       <LoginInnerContainer>
