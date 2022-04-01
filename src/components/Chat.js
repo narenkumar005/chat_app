@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import styled from "styled-components";
 import StarBorderIcon from "@material-ui/icons/StarBorder";
 import InfoOutlinedIcon from "@material-ui/icons/InfoOutlined";
@@ -9,6 +9,8 @@ import { popupStatus, selectRoomId } from "../features/appSlice";
 import { db } from "../firebase";
 import Message from "./Message";
 import CreateChannel from "./CreateChannel";
+import useInitial from "../hooks/useInitial";
+import useChannelUsers from "../hooks/useChannelUsers";
 
 const Chat = () => {
   const chatRef = useRef(null);
@@ -30,6 +32,13 @@ const Chat = () => {
   useEffect(() => {
     chatRef?.current?.scrollIntoView();
   }, [roomId, loading]);
+  const { users, currentUser } = useInitial();
+
+  const { channelUsers } = useChannelUsers(roomId);
+
+  //console.log("users:", users, "currentUser:", currentUser);
+  //console.log("currentChannelUsers", channelUsers);
+  //console.log(channelUsers.indexOf("apple"));
 
   return (
     <ChatContainer>
@@ -63,18 +72,23 @@ const Chat = () => {
             </HeaderRight>
           </Header>
           <ChatMessages>
-            {roomMessages?.docs.map((doc) => {
-              const { message, timestamp, user, userImage } = doc.data();
-              return (
-                <Message
-                  key={doc.id}
-                  message={message}
-                  timestamp={timestamp}
-                  user={user}
-                  userImage={userImage}
-                />
-              );
-            })}
+            {!(channelUsers.indexOf(currentUser) >= 0) && (
+              <h1>you are not the authorised user</h1>
+            )}
+
+            {channelUsers.indexOf(currentUser) >= 0 &&
+              roomMessages?.docs.map((doc) => {
+                const { message, timestamp, user, userImage } = doc.data();
+                return (
+                  <Message
+                    key={doc.id}
+                    message={message}
+                    timestamp={timestamp}
+                    user={user}
+                    userImage={userImage}
+                  />
+                );
+              })}
             <ChatBottom ref={chatRef} />
           </ChatMessages>
 

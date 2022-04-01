@@ -26,13 +26,11 @@ function CreateChannel() {
 
     const admin = auth.currentUser.email;
 
-    db.collection("rooms")
-      .doc()
-      .set({
-        admin: admin,
-        participants: participants,
-        channelName: channelName,
-      });
+    db.collection("rooms").doc().set({
+      admin: admin,
+      participants: participants,
+      channelName: channelName,
+    });
     setChannelName("");
     setParticipants([]);
   };

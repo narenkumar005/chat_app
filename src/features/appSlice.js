@@ -4,6 +4,8 @@ const initialState = {
   roomId: null,
   popUp: false,
   users: [],
+  currentUser: null,
+  authState: false,
 };
 
 export const appSlice = createSlice({
